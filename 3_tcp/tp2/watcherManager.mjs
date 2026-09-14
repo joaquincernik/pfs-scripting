@@ -7,7 +7,7 @@ class WatcherManager {
     }
 
     watch(path, time = 60) {
-        const t = Math.min(Math.max(parseInt(time) || 60, 1), 3600);
+        const t = Math.min(Math.max(parseInt(time) || 60, 1), 3600); //queda en el rando de 1 a 3600 es para expirar el watch
 
         // valida que la ruta exista y sea un directorio
         let stat;
