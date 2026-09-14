@@ -1,0 +1,20 @@
+services:
+  mqtt_pfs:
+    container_name: mqtt_pfs
+    image: eclipse-mosquitto:2.1.2-alpine
+    volumes:
+      - ./mosquitto/config:/mosquitto/config
+    ports:
+        - 1884:1883
+  snapshot_service_soa2026:
+    container_name: snapshot_service
+    build: ./snapshot_service
+    devices:
+      - /dev/video0:/dev/video0
+    ports:
+      - "5000:5000"
+    environment:
+      - HOST=mqtt_pfs
+      - TOPIC=camara/snapshot
+      - MQTT_PORT=1883
+      - PORT=5000
