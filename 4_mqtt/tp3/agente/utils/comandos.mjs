@@ -3,7 +3,15 @@ import { watcherManager } from "./watcherManager.mjs";
 import { execSync } from "child_process";
 import { connect } from "net";
 
-const COMANDOS_PERMITIDOS = ["df", "uptime", "free", "ls", "touch", "mkdir", "pwd"];
+const COMANDOS_PERMITIDOS = [
+  "df",
+  "uptime",
+  "free",
+  "ls",
+  "touch",
+  "mkdir",
+  "pwd",
+];
 export const comandos = {
   getOsInfo(seconds = 3600) {
     const data = collector.getData(seconds);
@@ -47,7 +55,7 @@ export const comandos = {
   },
   oscmd(command) {
     if (!COMANDOS_PERMITIDOS.includes(command[0])) {
-      return 1;
+      return false;
     }
     try {
       const stdout = execSync(command.join(" "), { encoding: "utf8" });
@@ -59,11 +67,15 @@ export const comandos = {
   snapshot() {
     return new Promise((resolve) => {
       const host = process.env.SNAPSHOT_HOST || "127.0.0.1";
-      const port = parseInt(process.env.SNAPSHOT_PORT || "5000", 10);
+      const port = process.env.SNAPSHOT_PORT || 5000;
       const socket = connect({ host, port });
       const timeout = setTimeout(() => {
         socket.destroy();
-        resolve({ err: true, command: "snapshot", content: "timeout: el contenedor snapshot no respondio" });
+        resolve({
+          err: true,
+          command: "snapshot",
+          content: "timeout: el contenedor snapshot no respondio",
+        });
       }, 30000);
 
       socket.on("connect", () => socket.write("snapshot\n"));
@@ -72,7 +84,11 @@ export const comandos = {
         clearTimeout(timeout);
         socket.destroy();
         if (resp.toUpperCase().startsWith("OK")) {
-          resolve({ err: false, command: "snapshot", content: "foto tomada y publicada en camara/snapshot" });
+          resolve({
+            err: false,
+            command: "snapshot",
+            content: "foto tomada y publicada en camara/snapshot",
+          });
         } else {
           resolve({ err: true, command: "snapshot", content: resp });
         }
